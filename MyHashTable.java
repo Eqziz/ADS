@@ -17,22 +17,103 @@ public class MyHashTable<K, V> {
   private HashNode<K, V>[] chainArray;
     private int M = 11;
     private int size;
-  
-  public MyHashTable() {}
-  
-  public MyHashTable(int M) {}
 
-  private int hash(K key) {}
+  @SuppressWarnings("unchecked")
+  public MyHashTable() {
+    chainArrray = new HashNode[M];
+  }
 
-  public void put(K key, V value) {}
+  @SuppressWarnings("unchecked")
+  public MyHashTable(int M) {
+    this.M = M;
+        chainArray = new HashNode[M];
+  }
 
-  public V get(K key) {}
+  private int hash(K key) {
+    return (key.hashCode() & 0x7fffffff) % M;
+  }
 
-  public V remove(K key) {}
+  public void put(K key, V value) {
+    int index = hash(key);
+    while (current != null) {
+            if (current.key.equals(key)) {
+                current.value = value;
+                return;
+            }
+            current = current.next;
+    }
+    HashNode<K, V> newNode = new HashNode<>(key, value);
+    newNode.next = chainArray[index];
+    chainArray[index] = newNode;
+    size++;
+  }
 
-  public boolean contains(V value) {}
+  public V get(K key) {
+    int index = hash(key);
+    HashNode<K, V> current = chainArray[index];
 
-  public K getKey(V value) {}
+    while (current != null) {
+        if (current.key.equals(key)) {
+          return current.value;
+        }
+          current = current.next;
+    }
+    return null;
+  }
 
-  public void printBucketSizes() {}
-}
+  public V remove(K key) {
+    int index = hash(key);
+    HashNode<K, V> current = chainArray[index];
+    HashNode<K, V> prev = null;
+
+    while (current != null) {
+      if (current.key.equals(key)) {
+        if (prev == null) {
+          chainArray[index] = current.next;
+        } else {
+          prev.next = current.next;
+        }
+        size--;
+        return current.value;
+      }
+      prev = current;
+      current = current.next;
+    }
+    return null;
+  }
+
+  public boolean contains(V value) {
+    for (HashNode<K, V> node : chainArray) {
+      while (node != null) {
+        if (node.value.equals(value)) {
+          return true;
+        }
+        node = node.next;
+      }
+    }
+    return false;
+  }
+
+  public K getKey(V value) {
+    for (HashNode<K, V> node : chainArray) {
+      while (node != null) {
+        if (node.value.equals(value)) {
+          return node.key;
+        }
+        node = node.next;
+      }
+    }
+    return null;
+  }
+
+  public void printBucketSizes() {
+    for (int i = 0; i < M; i++) {
+      int count = 0;
+      HashNode<K, V> current = chainArray[i];
+      while (current != null) {
+        count++;
+        current = current.next;
+      }
+      System.out.println("Bucket " + i + ": " + count);
+    }
+  }
