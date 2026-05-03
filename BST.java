@@ -21,27 +21,96 @@ public class BST<K extends Comparable<K>, V> implements Iterable<BST<K, V>.KVPai
     public class KVPair {
         private K key;
         private V val;
+        public KVPair(K key, V val) {
+            this.key = key;
+            this.val = val:
+        }
+        public K getKey() { return key; }
+        public V getValue() { return val; }
+    }
 
-        public KVPair(K key, V val) {}
+    public void put(K key, V val) {
+        root = put(root, key, val);
+    }
 
-    public void put(K key, V val) {}
+    private Node put(Node node, K key, V val) {
+        if (node == null) {
+            size++;
+            return new Node(key, val);
+        }
 
-    private Node put(Node node, K key, V val) {}
+        int cmp = key.compareTo(node.key);
+        if (cmp < 0) node.left = put(node.left, key, val);
+        else if (cmp > 0) node.right = put(node.right, key, val);
+        else node.val = val;
 
-    public V get(K key) {}
+        return node;
+    }
 
-    public void delete(K key) {}
+    public V get(K key) {
+        Node current = root;
+        while (current != null) {
+            int cmp = key.compareTo(current.key);
+            if (cmp < 0) current = current.left;
+            else if (cmp > 0) current = current.right;
+            else return current.val;
+        }
+        return null;
+    }
 
-    private Node delete(Node node, K key) {}
+    public void delete(K key) {
+        root = delete(root, key);
+    }
 
-    private Node min(Node node) {}
+    private Node delete(Node node, K key) {
+        if (node == null) return null;
 
-    private Node deleteMin(Node node) {}
+        int cmp = key.compareTo(node.key);
+        if (cmp < 0) {
+            node.left = delete(node.left, key);
+        } else if (cmp > 0) {
+            node.right = delete(node.right, key);
+        } else {
+            size--;
+            if (node.right == null) return node.left;
+            if (node.left == null) return node.right;
 
-    public int size() {}
+            Node t = node;
+            node = min(t.right);
+            node.right = deleteMin(t.right);
+            node.left = t.left;
+            size++;
+        }
+        return node;
+    }
+
+    private Node min(Node node) {
+        if (node.left == null) return node;
+        return min(node.left);
+    }
+
+    private Node deleteMin(Node node) {
+        if (node.left == null) return node.right;
+        node.left = deleteMin(node.left);
+        return node;
+    }
+
+    public int size() {
+        return size;
+    }
 
     @Override
-    public Iterator<KVPair> iterator() {}
+    public Iterator<KVPair> iterator() {
+        List<KVPair> elements = new ArrayList<>();
+        inOrder(root, elements);
+        return elements.iterator();
+    }
 
-    private void inOrder(Node node, List<KVPair> elements) {}
+    private void inOrder(Node node, List<KVPair> elements) {
+        if (node == null) return;
+
+        inOrder(node.left, elements);
+        elements.add(new KVPair(node.key, node.val));
+        inOrder(node.right, elements);
+    }
 }
